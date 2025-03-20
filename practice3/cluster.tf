@@ -22,6 +22,7 @@ resource "aws_security_group" "webserver_sg" {
 resource "aws_launch_template" "webserver_template" {
     image_id      = "ami-062cddb9d94dcf95d"
     instance_type = "t3.micro"
+    key_name      = "keypair-full-master"
     
     # User Data를 추가하여 웹 서버 실행 설정
     user_data = base64encode(<<-EOF
