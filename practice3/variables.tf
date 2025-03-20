@@ -1,3 +1,12 @@
+variable "project_name" {
+    description = "The name of the Terraform practice project"
+    type        = string
+    default     = "terraform-practice"
+}
+variable "vpc_main_cidr" {
+        description = "VPC main CIDR block"
+        default = "10.0.0.0/23"
+}
 variable "server_port" {
         description = "Webserver's HTTP port"
         type = number
