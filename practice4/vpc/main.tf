@@ -149,14 +149,14 @@ resource "aws_nat_gateway" "nat_gw_2" {
 }
 
 # 인프라 생성용 terraform 프로젝트 생성
-terraform {
-        required_version = ">= 1.0.0, < 2.0.0"
+# terraform {
+#         required_version = ">= 1.0.0, < 2.0.0"
 
-        backend "s3" {
-                bucket = "250320-rowan-practice4"
-                key = "vpc/terraform.tfstate"
-                region = "ap-northeast-2"
-                encrypt = true
-                # use_lockfile = true
-        }
-}
+#         backend "s3" {
+#                 bucket = "250320-rowan-practice4"
+#                 key = "vpc/terraform.tfstate"
+#                 region = "ap-northeast-2"
+#                 encrypt = true
+#                 # use_lockfile = true
+#         }
+# }
