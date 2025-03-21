@@ -20,30 +20,31 @@ resource "aws_security_group" "webserver_sg" {
 
 # launch_template
 resource "aws_launch_template" "webserver_template" {
-    image_id      = "ami-062cddb9d94dcf95d"
-    instance_type = "t3.micro"
-    key_name      = "keypair-full-master"
-    
-    # User Data를 추가하여 웹 서버 실행 설정
-    user_data = base64encode(<<-EOF
-        #!/bin/bash
-        sudo yum update -y
-        sudo yum install -y nginx
+  image_id      = "ami-062cddb9d94dcf95d"
+  instance_type = "t3.micro"
+  key_name      = "keypair-full-master"
+  
+  # User Data를 추가하여 웹 서버 실행 설정
+  user_data = base64encode(<<-EOF
+      #!/bin/bash
+      sudo yum update -y
+      sudo yum install -y nginx
 
-        # "Hello, World" 메시지를 Nginx 기본 문서로 설정
-        echo "Hello, World" | sudo tee /usr/share/nginx/html/index.html
+      # CI/CD 배포 버전 메시지를 Nginx 기본 문서로 설정
+      echo "Deployed via CI/CD v1.0.0" | sudo tee /usr/share/nginx/html/index.html
 
-        # Nginx 실행 및 부팅 시 자동 시작
-        sudo systemctl enable nginx
-        sudo systemctl start nginx
-    EOF
-    )
+      # Nginx 실행 및 부팅 시 자동 시작
+      sudo systemctl enable nginx
+      sudo systemctl start nginx
+  EOF
+  )
 
-    # 보안 그룹 연결
-    network_interfaces {
-        security_groups = [aws_security_group.webserver_sg.id]
-    }
+  # 보안 그룹 연결
+  network_interfaces {
+    security_groups = [aws_security_group.webserver_sg.id]
+  }
 }
+
 
 # ASG
 resource "aws_autoscaling_group" "webserver_asg" {
