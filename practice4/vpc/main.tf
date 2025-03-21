@@ -159,4 +159,4 @@ resource "aws_nat_gateway" "nat_gw_2" {
 #                 encrypt = true
 #                 # use_lockfile = true
 #         }
-# 
+#
