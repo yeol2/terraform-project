@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - terraform_stage/**
+      - terraform-stage/**
       - modules/**
       - backend/**
 
@@ -13,7 +13,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**/stage-terraform.yml'
+      - '**/workflows-terraform.yml'
   
   # 수동 destroy 추가
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: final/terraform_stage
+        working-directory: terraform-stage
 
     steps:
       - name: Checkout code
@@ -118,11 +118,11 @@ jobs:
 
       # Generates an execution plan for Terraform, 사용자 입력 받지 않도록 설정
       - name: Terraform Plan
-        run: cd terraform_stage; terraform init ; terraform plan -input=false
+        run: cd terraform-stage; terraform init ; terraform plan -input=false
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       - name: Terraform Apply
-        run: cd terraform_stage; terraform apply -auto-approve -input=false
+        run: cd terraform-stage; terraform apply -auto-approve -input=false
   
   # backend -> S3 & DynamoDB 생성 후 실행 필수
   backend_setup:
@@ -147,7 +147,7 @@ jobs:
       # 이거 되려면 이미 존재하는 백엔드에 연결되야함
       - name: Init and Apply Backend
         run: |
-          terraform_stage; terraform init \
+          terraform-stage; terraform init \
           -backend-config="region=ap-northeast-2" \
           -backend-config="bucket=rowan-2503-state-final" \
           -backend-config="key=stage/terraform/terraform.tfstate"
@@ -178,7 +178,7 @@ jobs:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           run: |
-            cd terraform_stage; terraform init \
+            cd terraform-stage; terraform init \
               -backend-config="region=ap-northeast-2" \
               -backend-config="bucket=rowan-2503-state-final" \
               -backend-config="key=stage/terraform/terraform.tfstate"
@@ -189,4 +189,4 @@ jobs:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           run: |
-            cd terraform_stage; terraform destroy -auto-approve
+            cd terraform-stage; terraform destroy -auto-approve
