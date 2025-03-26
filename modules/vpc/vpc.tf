@@ -128,7 +128,7 @@ resource "aws_eip" "nat-eip-az1" {
 
 # NAT Gateway for public-A 
 resource "aws_nat_gateway" "vpc-nat-az1" {
-  allocation_id = aws_eip.nat-eip-az1
+  allocation_id = aws_eip.nat-eip-az1.id
   subnet_id     = aws_subnet.public-az1.id
   depends_on    = [aws_internet_gateway.vpc-igw, aws_eip.nat-eip-az1]
   tags = merge(tomap({
