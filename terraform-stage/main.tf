@@ -28,3 +28,12 @@ module "vpc" {
   az                   = var.az
   tags                 = var.tags
 }
+
+module "openvpn" {
+  source        = "../modules/openvpn"
+  name          = "OpenVPN-Server"
+  openvpn_instance_type = var.openvpn_instance_type
+  key_name      = var.key_name
+  vpc_id        = module.vpc.vpc_id
+  subnet_id     = module.vpc.public-az1.id
+}
