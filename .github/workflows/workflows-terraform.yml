@@ -18,7 +18,7 @@ on:
 
 jobs:   
   terraform:
-    name: Apply Terraform Workflow
+    name: Apply Terraform Dev Workflow
     runs-on: ubuntu-latest
 
     env:
@@ -113,7 +113,7 @@ jobs:
       - name: Terraform Plan
         run: cd terraform-stage; terraform init ; terraform plan -input=false
 
-      # On push to "stage", build or change infrastructure according to Terraform configuration files
+      # On push to "dev", build or change infrastructure according to Terraform configuration files
       - name: Terraform Apply
         run: cd terraform-stage; terraform apply -auto-approve -input=false
   
@@ -138,7 +138,7 @@ jobs:
           cd terraform-stage; terraform init \
             -backend-config="region=ap-northeast-2" \
             -backend-config="bucket=rowan-2503-state-final" \
-            -backend-config="key=stage/terraform/terraform.tfstate"
+            -backend-config="key=dev/terraform/terraform.tfstate"
             
   backend_destroy:
     runs-on: ubuntu-latest
@@ -162,7 +162,7 @@ jobs:
           cd terraform-stage; terraform init \
             -backend-config="region=ap-northeast-2" \
             -backend-config="bucket=rowan-2503-state-final" \
-            -backend-config="key=stage/terraform/terraform.tfstate"
+            -backend-config="key=dev/terraform/terraform.tfstate"
 
       - name: Terraform Destroy
         env:

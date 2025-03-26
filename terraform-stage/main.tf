@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     bucket         = "rowan-2503-state-final"
-    key            = "stage/terraform/terraform.tfstate"
+    key            = "dev/terraform/terraform.tfstate"
     region         = "ap-northeast-2"
     encrypt        = true
     dynamodb_table = "rowan-2503-state-final"
