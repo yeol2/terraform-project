@@ -10,10 +10,6 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = var.region
-}
-
 # VPC 모듈 호출
 module "vpc" {
   source = "../modules/vpc"
