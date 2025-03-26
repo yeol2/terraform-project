@@ -51,7 +51,7 @@ jobs:
     
       - name: Init and Apply Backend
         run: |
-          terraform-stage; terraform init \
+          cd terraform-stage; terraform init \
           -backend-config="region=ap-northeast-2" \
           -backend-config="bucket=rowan-2503-state-final" \
           -backend-config="key=stage/terraform/terraform.tfstate"
