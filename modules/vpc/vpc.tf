@@ -1,6 +1,12 @@
 # vpc/ subnet
 # public subnet az1, 2
-# service subnet az1, 2 
+# service subnet az1, 2
+# db subnet az1, 2
+# igw
+# nat
+# route table pub,pri
+# route table association
+
 resource "aws_vpc" "aws-vpc" {
   cidr_block           = var.vpc_ip_range
   instance_tenancy     = "default"
@@ -83,6 +89,26 @@ resource "aws_subnet" "db-az2" {
   depends_on = [aws_vpc.aws-vpc]
 }
 
+# # RDS Subnet Group 
+# # Fowler - Merge이후 주석 삭제
+# resource "aws_db_subnet_group" "db-subnet-group-gitlab" {
+#   name                    = "aws-db-subnet-group-gitlab"
+#   subnet_ids              = [aws_subnet.db-az1.id, aws_subnet.db-az2.id]
+#   tags                    = merge(tomap({
+#                             Name = "aws-db-subnet-group-gitlab"}), 
+#                             var.tags)
+# }
+
+# # redis Subnet Group 
+# # Fowler - Merge이후 주석 삭제
+# resource "aws_elasticache_subnet_group" "redis-subnet-group-gitlab" {
+#   name                    = "aws-redis-subnet-group-gitlab"
+#   subnet_ids              = [aws_subnet.db-az1.id, aws_subnet.db-az2.id]
+#   tags                    = merge(tomap({
+#                             Name = "aws-redis-subnet-group-gitlab"}), 
+#                             var.tags)
+# }
+
 # Internet Gateway
 resource "aws_internet_gateway" "vpc-igw" {
   vpc_id = aws_vpc.aws-vpc.id
@@ -91,26 +117,46 @@ resource "aws_internet_gateway" "vpc-igw" {
         var.tags)
 }
 
-# EIP for NAT
-resource "aws_eip" "nat-eip" {
+# EIP for NAT-A
+resource "aws_eip" "nat-eip-az1" {
   domain = "vpc"
   depends_on = [aws_internet_gateway.vpc-igw]
   tags = merge(tomap({
-         Name = "aws-eip-${var.stage}-${var.servicename}-nat"}), 
+         Name = "aws-eip-A-${var.stage}-${var.servicename}-nat"}), 
         var.tags)
 }
 
-# NAT Gateway
-resource "aws_nat_gateway" "vpc-nat" {
-  allocation_id = aws_eip.nat-eip.id
+# NAT Gateway for public-A 
+resource "aws_nat_gateway" "vpc-nat-az1" {
+  allocation_id = aws_eip.nat-eip-az1.id
   subnet_id     = aws_subnet.public-az1.id
-  depends_on    = [aws_internet_gateway.vpc-igw, aws_eip.nat-eip]
+  depends_on    = [aws_internet_gateway.vpc-igw, aws_eip.nat-eip-az1]
   tags = merge(tomap({
-         Name = "aws-nat-${var.stage}-${var.servicename}"}), 
+         Name = "aws-nat-A-${var.stage}-${var.servicename}"}), 
         var.tags)    
 }
 
-# Route Table - Public
+# EIP for NAT-C
+resource "aws_eip" "nat-eip-az2" {
+  domain = "vpc"
+  depends_on = [aws_internet_gateway.vpc-igw]
+  tags = merge(tomap({
+         Name = "aws-eip-C-${var.stage}-${var.servicename}-nat"}), 
+        var.tags)
+}
+
+# NAT Gateway for public-C
+resource "aws_nat_gateway" "vpc-nat-az2" {
+  allocation_id = aws_eip.nat-eip-az2.id
+  subnet_id     = aws_subnet.public-az2.id
+  depends_on    = [aws_internet_gateway.vpc-igw, aws_eip.nat-eip-az2]
+  tags = merge(tomap({
+         Name = "aws-nat-C-${var.stage}-${var.servicename}"}), 
+        var.tags)
+}
+
+
+# Route Table - public
 resource "aws_route_table" "aws-rt-pub" {
   vpc_id = aws_vpc.aws-vpc.id
   tags = merge(tomap({
@@ -128,43 +174,75 @@ resource "aws_route" "route-to-igw" {
   }
 }
 
-# Route Table - Private
-resource "aws_route_table" "aws-rt-pri" {
+# Route Table - private A
+resource "aws_route_table" "aws-rt-pri-az1" {
   vpc_id = aws_vpc.aws-vpc.id
   tags = merge(tomap({
-         Name = "aws-rt-${var.stage}-${var.servicename}-pri"}), 
+         Name = "aws-rt-${var.stage}-${var.servicename}-pri-az1"}), 
         var.tags)
 }
 
-# Private Route to NAT
-resource "aws_route" "route-to-nat" {
-  route_table_id         = aws_route_table.aws-rt-pri.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.vpc-nat.id
+# Route Table - private C
+resource "aws_route_table" "aws-rt-pri-az2" {
+	vpc_id = aws_vpc.aws-vpc.id
+	# 태그
+	tags = merge(tomap({
+         Name = "aws-rt-${var.stage}-${var.servicename}-pri-az2"}), 
+        var.tags)
 }
 
+# Route Table -DB
+resource "aws_route_table" "aws-rt-db" {
+	vpc_id = aws_vpc.aws-vpc.id
+	# 태그
+	tags = merge(tomap({
+    Name = "aws-rt-${var.stage}-${var.servicename}-db"
+  }), var.tags)
+}
+
+# Private Route to NAT
+resource "aws_route" "route-to-nat-az1" {
+	route_table_id = aws_route_table.aws-rt-pri-az1.id
+	destination_cidr_block = "0.0.0.0/0"
+	nat_gateway_id = aws_nat_gateway.vpc-nat-az1.id
+}	
+
+resource "aws_route" "route-to-nat-az2" {
+	route_table_id = aws_route_table.aws-rt-pri-az2.id
+	destination_cidr_block = "0.0.0.0/0"
+	nat_gateway_id = aws_nat_gateway.vpc-nat-az2.id
+}	
+
 # Route Table Associations
+# Public Subnet → Public Route Table
 resource "aws_route_table_association" "public-az1" {
- subnet_id      = aws_subnet.public-az1.id
- route_table_id = aws_route_table.aws-rt-pub.id
+  subnet_id      = aws_subnet.public-az1.id
+  route_table_id = aws_route_table.aws-rt-pub.id
 }
+
 resource "aws_route_table_association" "public-az2" {
- subnet_id      = aws_subnet.public-az2.id
- route_table_id = aws_route_table.aws-rt-pub.id
+  subnet_id      = aws_subnet.public-az2.id
+  route_table_id = aws_route_table.aws-rt-pub.id
 }
+
+# Service Subnet → Private Route Table
 resource "aws_route_table_association" "service-az1" {
- subnet_id      = aws_subnet.service-az1.id
- route_table_id = aws_route_table.aws-rt-pri.id
+  subnet_id      = aws_subnet.service-az1.id
+  route_table_id = aws_route_table.aws-rt-pri-az1.id
 }
+
 resource "aws_route_table_association" "service-az2" {
- subnet_id      = aws_subnet.service-az2.id
- route_table_id = aws_route_table.aws-rt-pri.id
+  subnet_id      = aws_subnet.service-az2.id
+  route_table_id = aws_route_table.aws-rt-pri-az2.id
 }
+
+
+# 라우트 테이블 연결 설정 (DB Subnet -> Private Route Table)
 resource "aws_route_table_association" "db-az1" {
- subnet_id      = aws_subnet.db-az1.id
- route_table_id = aws_route_table.aws-rt-pri.id
+	subnet_id = aws_subnet.db-az1.id
+	route_table_id = aws_route_table.aws-rt-db.id
 }
 resource "aws_route_table_association" "db-az2" {
- subnet_id      = aws_subnet.db-az2.id
- route_table_id = aws_route_table.aws-rt-pri.id
+	subnet_id = aws_subnet.db-az2.id
+	route_table_id = aws_route_table.aws-rt-db.id
 }

@@ -1,70 +1,32 @@
-name: Terraform CI/CD
+name: 'Terraform-CICD'
 
 on:
   push:
     branches:
-      - main
-    paths:
-      - terraform-stage/**
-      - modules/**
-      - backend/**
-
+      - 'dev'
   pull_request:
     branches:
-      - main
+      - 'main'
     paths-ignore:
       - '**/workflows-terraform.yml'
-  
-  # 수동 destroy 추가
   workflow_dispatch:
     inputs:
       confirm_destroy:
-        description: 'Confirm if you want to destroy infrastructure'
+        description: 'Confirm if you want to destroy the Terraform backend (type DESTROY to confirm)'
         required: true
         default: 'DESTROY'
-      
-jobs:
-  # backend -> S3 & DynamoDB 생성 
-  backend_setup:
-    name: create S3 & DynamoDB
-    runs-on: ubuntu-latest
-    
-    env:
-      AWS_REGION: ap-northeast-2
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: latest
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-    
-      - name: Init and Apply Backend
-        run: |
-          cd terraform-stage
-          terraform init
-          
+jobs:   
   terraform:
-    name: Apply Terraform Workflow
+    name: Apply Terraform Dev Workflow
     runs-on: ubuntu-latest
-    needs: backend_setup
 
     env:
       AWS_REGION: ap-northeast-2
 
     defaults:
       run:
-        working-directory: terraform-stage
+        shell: bash
 
     steps:
       - name: Checkout code
@@ -114,7 +76,7 @@ jobs:
           }
 
           # Terraform 상태 관리를 위한 S3 버킷과 DynamoDB 테이블 이름
-          S3_BUCKET="rowan-2503-state-finale"
+          S3_BUCKET="rowan-2503-state-final"
           DYNAMODB_TABLE="rowan-2503-state-final"
 
           # 버킷과 테이블의 존재 여부를 확인
@@ -149,47 +111,64 @@ jobs:
 
       # Generates an execution plan for Terraform, 사용자 입력 받지 않도록 설정
       - name: Terraform Plan
-        run: cd terraform-stage; terraform init ; terraform plan -input=false
+        run: |
+          cd terraform-stage; terraform init ; terraform plan -input=false
 
-      # On push to "main", build or change infrastructure according to Terraform configuration files
+      # On push to "dev", build or change infrastructure according to Terraform configuration files
       - name: Terraform Apply
-        run: cd terraform-stage; terraform apply -auto-approve -input=false
+        run: |
+          cd terraform-stage; terraform apply -auto-approve -input=false
   
-  # 수동 실행으로 인프라 삭제
+  # backend -> S3 & DynamoDB 생성 
+  backend_setup:
+    runs-on: ubuntu-latest
+    needs: terraform
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.8.0'
+
+      - name: Terraform Backend Init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform-stage; terraform init \
+            -backend-config="region=ap-northeast-2" \
+            -backend-config="bucket=rowan-2503-state-final" \
+            -backend-config="key=dev/terraform/terraform.tfstate"
+            
   backend_destroy:
-    name: Destroy Infrastructure
     runs-on: ubuntu-latest
     needs: backend_setup
+    if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
+
     steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-        - name: Setup Terraform
-          uses: hashicorp/setup-terraform@v2
-          with:
-            terraform_version: latest
-        
-        # 조건 분기 -> 파괴 여부 확인 
-        - name: Confirm Destruction
-          # Github Action의 수동 입력 값(confirm_destroy)이 'DESTROY' 일 경우에 실행
-          if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
-          run: |
-            echo "Destruction confirmed. Proceeding with Terraform destroy operation."
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.8.0'
 
-        - name: Terraform Init for Destroy
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          run: |
-            cd terraform-stage; terraform init \
-              -backend-config="region=ap-northeast-2" \
-              -backend-config="bucket=rowan-2503-state-final" \
-              -backend-config="key=stage/terraform/terraform.tfstate"
-        # 실제 인프라 삭제 부분
-        - name: Terraform Destroy
-          if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          run: |
-            cd terraform-stage; terraform destroy -auto-approve
+      - name: Terraform Init for Destroy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform-stage; terraform init \
+            -backend-config="region=ap-northeast-2" \
+            -backend-config="bucket=rowan-2503-state-final" \
+            -backend-config="key=dev/terraform/terraform.tfstate"
+
+      - name: Terraform Destroy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform-stage; terraform destroy -auto-approve
