@@ -14,14 +14,14 @@ variable "servicename" {
 variable "tags" {
   type = map(string)
   default = {
-    "name" = "rowan-db"
+    "name" = "rowandb"
   }
 }
 
 # 기본 데이터베이스 이름
 variable "dbname" {
   type    = string
-  default = "rds-rowan-db"
+  default = "rdsrowandb"
 }
 
 # 사용할 RDS 엔진 유형 (Aurora MySQL 사용)
