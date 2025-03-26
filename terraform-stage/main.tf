@@ -47,7 +47,7 @@ module "rds" {
   servicename  = var.servicename
   
   tags = var.tags
-  dbname = var.rds_dbname
+  rds_dbname = var.rds_dbname
 #  sg_allow_ingress_list_aurora    = var.sg_allow_ingress_list_aurora
 #  sg_allow_ingress_sg_list_aurora = concat([module.vpc.sg-ec2-comm.id, module.eks.eks_node_sg_id], var.sg_allow_list_aurora_sg_add)
   sg_allow_ingress_sg_list_aurora = [module.asg.asg_ec2_sg_id]
