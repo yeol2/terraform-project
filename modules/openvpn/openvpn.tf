@@ -1,6 +1,6 @@
 # OpenVPN EC2 인스턴스 생성
 resource "aws_instance" "openvpn" {
-  ami           = "ami-09a093fa2e3bfca5a" # ✅ 고정된 openvpn ami id
+  ami           = "ami-09a093fa2e3bfca5a" # 고정된 openvpn ami id
   instance_type = var.openvpn_instance_type
   key_name      = var.key_name 
   vpc_security_group_ids = [aws_security_group.openvpn_sg.id]
