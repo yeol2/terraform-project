@@ -111,11 +111,13 @@ jobs:
 
       # Generates an execution plan for Terraform, 사용자 입력 받지 않도록 설정
       - name: Terraform Plan
-        run: cd terraform-stage; terraform init ; terraform plan -input=false
+        run: |
+          cd terraform-stage; terraform init ; terraform plan -input=false
 
       # On push to "dev", build or change infrastructure according to Terraform configuration files
       - name: Terraform Apply
-        run: cd terraform-stage; terraform apply -auto-approve -input=false
+        run: |
+          cd terraform-stage; terraform apply -auto-approve -input=false
   
   # backend -> S3 & DynamoDB 생성 
   backend_setup:
