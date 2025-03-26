@@ -1,14 +1,14 @@
 # variables.tf에 추가
 variable "region" {
-  type    = string
+  type = string
 }
 
 variable "stage" {
-  type        = string
+  type = string
 }
 
 variable "servicename" {
-  type        = string
+  type = string
 }
 
 variable "vpc_ip_range" {
@@ -43,4 +43,15 @@ variable "az" {
 variable "tags" {
   type    = map(string)
   default = {}
+}
+
+# EC2 인스턴스 관련
+variable "ami_id" {}
+variable "instance_type" {}
+variable "key_name" {}
+
+# ALB, ASG, SG 관련
+variable "alb_name" {}
+variable "web_ingress_cidrs" {
+  type = list(string)
 }

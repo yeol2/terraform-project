@@ -24,9 +24,38 @@ on:
         default: 'DESTROY'
       
 jobs:
+  # backend -> S3 & DynamoDB 생성 
+  backend_setup:
+    name: create S3 & DynamoDB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+    
+      - name: Init and Apply Backend
+        run: |
+          terraform-stage; terraform init \
+          -backend-config="region=ap-northeast-2" \
+          -backend-config="bucket=rowan-2503-state-final" \
+          -backend-config="key=stage/terraform/terraform.tfstate"
+          
   terraform:
     name: Apply Terraform Workflow
     runs-on: ubuntu-latest
+    needs: backend_setup
 
     env:
       AWS_REGION: ap-northeast-2
@@ -123,34 +152,6 @@ jobs:
       # On push to "main", build or change infrastructure according to Terraform configuration files
       - name: Terraform Apply
         run: cd terraform-stage; terraform apply -auto-approve -input=false
-  
-  # backend -> S3 & DynamoDB 생성 후 실행 필수
-  backend_setup:
-    runs-on: ubuntu-latest
-    needs: terraform
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: latest
-      
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      
-      # 이거 되려면 이미 존재하는 백엔드에 연결되야함
-      - name: Init and Apply Backend
-        run: |
-          terraform-stage; terraform init \
-          -backend-config="region=ap-northeast-2" \
-          -backend-config="bucket=rowan-2503-state-final" \
-          -backend-config="key=stage/terraform/terraform.tfstate"
   
   # 수동 실행으로 인프라 삭제
   backend_destroy:
