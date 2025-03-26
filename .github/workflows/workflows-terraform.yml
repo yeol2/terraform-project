@@ -28,10 +28,14 @@ jobs:
   backend_setup:
     name: create S3 & DynamoDB
     runs-on: ubuntu-latest
+    
+    env:
+      AWS_REGION: ap-northeast-2
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
