@@ -1,8 +1,8 @@
 # OpenVPN EC2 인스턴스 생성
 resource "aws_instance" "openvpn" {
-  ami           = "ami-0ee2a84e6d328e43f" # ✅ 고정된 AMI ID 사용 (서울 리전)
+  ami           = "ami-09a093fa2e3bfca5af" # ✅ 고정된 openvpn ami id
   instance_type = var.openvpn_instance_type
-  key_name      = var.key_name # VPN 접속 외 SSH 필요 없다면 생략 가능
+  key_name      = var.key_name 
   vpc_security_group_ids = [aws_security_group.openvpn_sg.id]
   subnet_id = var.subnet_id
   associate_public_ip_address = true
