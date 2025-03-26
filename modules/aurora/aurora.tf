@@ -1,5 +1,5 @@
 resource "aws_rds_cluster" "rds-cluster" {
-  cluster_identifier              = lower("aws-rds-cluster-dev-rowan-aurora-rowan-db")
+  cluster_identifier              = lower("aws-rds-cluster-dev-rowan-aurora-db")
   # Aurora 클러스터의 고유 식별자 (이름)
   # lower()를 사용하여 소문자로 변환
 
