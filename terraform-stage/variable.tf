@@ -93,7 +93,7 @@ variable "key_name" {
 # RDS (DB) Configuration
 variable "rds_dbname" {
   type    = string
-  default = "rds-terraform"
+  default = "rdsterraform"
 }
 
 variable "rds_instance_count" {

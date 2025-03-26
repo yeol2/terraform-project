@@ -19,9 +19,8 @@ variable "tags" {
 }
 
 # 기본 데이터베이스 이름
-variable "dbname" {
+variable "rds_dbname" {
   type    = string
-  default = "rdsrowandb"
 }
 
 # 사용할 RDS 엔진 유형 (Aurora MySQL 사용)

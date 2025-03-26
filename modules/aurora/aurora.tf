@@ -12,8 +12,7 @@ resource "aws_rds_cluster" "rds-cluster" {
   db_subnet_group_name            = aws_db_subnet_group.rds-subnet-group.id
   # RDS가 배치될 서브넷 그룹
 
-  database_name = var.dbname
-
+  database_name = var.rds_dbname
   # 기본 데이터베이스 이름
 
   master_username                 = var.master_username  # DB 관리자 계정 이름
@@ -81,7 +80,7 @@ resource "random_password" "rds-password" {
 
 
 resource "aws_db_subnet_group" "rds-subnet-group" {
-  name_prefix = lower("aws-rds-subnet-group-${var.stage}-${var.servicename}-aurora-${var.dbname}")
+  name_prefix = lower("aws-rds-subnet-group-${var.stage}-${var.servicename}-aurora-${var.rds_dbname}")
   # 서브넷 그룹의 이름을 소문자로 설정 (예: "aws-rds-subnet-group-dev-myapp-aurora-mydb")
 
   subnet_ids  = var.subnet_ids

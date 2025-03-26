@@ -1,6 +1,6 @@
 # 📌 Aurora RDS 보안 그룹 생성
 resource "aws_security_group" "sg-aurora" {
-  name   = "aws-sg-${var.stage}-${var.servicename}-aurora-${var.dbname}"
+  name   = "aws-sg-${var.stage}-${var.servicename}-aurora-${var.rds_dbname}"
   # 보안 그룹 이름 (예: "aws-sg-dev-myapp-aurora-mydb")
 
   vpc_id = var.network_vpc_id
@@ -51,7 +51,7 @@ resource "aws_security_group" "sg-aurora" {
   }
 
     tags = merge(tomap({
-         Name =  "aws-sg-${var.stage}-${var.servicename}-aurora-${var.dbname}"}),
+         Name =  "aws-sg-${var.stage}-${var.servicename}-aurora-${var.rds_dbname}"}),
         var.tags)
   # 보안 그룹에 태그 적용 (예: "aws-sg-dev-myapp-aurora-mydb")
 
