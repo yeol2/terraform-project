@@ -4,10 +4,6 @@ resource "aws_launch_template" "web_template" {
   instance_type = var.instance_type
   key_name      = var.key_name
 
-  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    message = var.deploy_message
-  }))
-
   network_interfaces {
     security_groups = [var.web_sg_id]
   }
