@@ -1,5 +1,5 @@
 resource "aws_rds_cluster" "rds-cluster" {
-  cluster_identifier              = lower("aws-rds-cluster-dev-aaron-aurora-aaron-db")
+  cluster_identifier              = lower("aws-rds-cluster-dev-rowan-aurora-rowan-db")
   # Aurora 클러스터의 고유 식별자 (이름)
   # lower()를 사용하여 소문자로 변환
 
@@ -48,7 +48,7 @@ resource "aws_rds_cluster" "rds-cluster" {
 
 resource "aws_rds_cluster_instance" "rds-instance" {
   count                      = var.rds_instance_count  # 생성할 DB 인스턴스 개수
-  identifier                 = lower("aws-rds-instance-dev-aaron-aurora-aarondb-${count.index}")
+  identifier                 = lower("aws-rds-instance-dev-rowan-aurora-db-${count.index}")
   # DB 인스턴스의 고유 식별자 (이름)
 
   cluster_identifier          = aws_rds_cluster.rds-cluster.id
@@ -90,7 +90,7 @@ resource "aws_db_subnet_group" "rds-subnet-group" {
 }
 
 resource "aws_rds_cluster_parameter_group" "rds-cluster-parameter-group" {
-  name        = lower("aws-rds-cluster-parameter-group-dev-aaron-aurora-aaron-db")
+  name        = lower("aws-rds-cluster-parameter-group-dev-rowan-aurora-db")
   # 클러스터 파라미터 그룹 이름 (소문자 변환)
 
   family      = var.family  # Aurora 엔진 패밀리 (예: "aurora-mysql8")
@@ -222,7 +222,7 @@ resource "aws_rds_cluster_parameter_group" "rds-cluster-parameter-group" {
 
 
 resource "aws_db_parameter_group" "rds-instance-parameter-group" {
-  name   = lower("aws-rds-instance-parameter-group-dev-aaron-aurora-aaron-db")
+  name   = lower("aws-rds-instance-parameter-group-dev-rowan-aurora-db")
   family = var.family  # Aurora 인스턴스 엔진 패밀리 (예: "aurora-postgresql12")
 
   parameter {

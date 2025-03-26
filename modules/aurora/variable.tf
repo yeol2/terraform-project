@@ -7,21 +7,21 @@ variable "stage" {
 # 서비스의 이름을 설정
 variable "servicename" {
   type    = string
-  default = "aaron"
+  default = "rowan"
 }
 
 # AWS 리소스에 적용할 공통 태그
 variable "tags" {
   type = map(string)
   default = {
-    "name" = "aaron-db"
+    "name" = "rowan-db"
   }
 }
 
 # 기본 데이터베이스 이름
 variable "dbname" {
   type    = string
-  default = "aaron-db"
+  default = "rds-rowan-db"
 }
 
 # 사용할 RDS 엔진 유형 (Aurora MySQL 사용)
