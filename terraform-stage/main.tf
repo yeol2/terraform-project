@@ -31,12 +31,13 @@ module "vpc" {
 
 # openvpn
 module "openvpn" {
-  source        = "../modules/openvpn"
-  name          = "OpenVPN-Server"
-  openvpn_instance_type = var.openvpn_instance_type
-  key_name      = var.key_name
-  vpc_id        = module.vpc.vpc_id
-  subnet_id     = module.vpc.public-az1.id
+  source = "../modules/openvpn"
+
+  openvpn_instance_type = "t3.micro"
+  key_name              = "rowan-key"
+  subnet_id             = module.vpc.public_subnet_id
+  vpc_id                = module.vpc.vpc_id
+  name                  = "openvpn-${var.stage}-${var.servicename}"
 }
 
 # rds
