@@ -75,9 +75,9 @@ module "asg" {
   target_group_arns  = [module.alb.alb_target_group_arn]
   openvpn_sg_id = module.openvpn.sg_id
 
-  desired_capacity = 2
-  max_size         = 3
-  min_size         = 2
+  desired_capacity = 1
+  max_size         = 2
+  min_size         = 1
 
   user_data     = local.user_data
   # wordpress를 위한 rds 설정

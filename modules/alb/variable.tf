@@ -84,7 +84,7 @@ variable "hostzone_id" {
 # 헬스 체크 경로 (기본값: "/")
 variable "hc_path" {
     type  = string
-    default = "/"
+    default = "/health"
 }
 
 # 헬스 체크가 정상으로 간주될 연속 성공 횟수

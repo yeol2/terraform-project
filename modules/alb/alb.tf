@@ -88,7 +88,7 @@ resource "aws_lb_target_group" "target-group" {
     unhealthy_threshold = var.hc_unhealthy_threshold  # 비정상 상태로 간주할 요청 수
     interval            = 30                              # 체크 간격 (초)
     timeout             = 5                               # 응답 타임아웃 (초)
-     matcher             = "200"                           # 기대 응답 코드
+    matcher             = "200"                           # 기대 응답 코드
   }
 
   tags = merge(tomap({
@@ -129,7 +129,7 @@ resource "aws_security_group" "sg-alb" {
          Name = "aws-sg-${var.stage}-${var.servicename}-alb"}), var.tags)
 }
 
-# 📌 ALB -> Target Group 통신을 위한 보안 그룹 설정
+# ALB -> Target Group 통신을 위한 보안 그룹 설정
 resource "aws_security_group" "sg-alb-to-tg" {
   name   = "aws-sg-${var.stage}-${var.servicename}-alb-to-tg"
   vpc_id = var.vpc_id  # 보안 그룹이 속할 VPC ID
