@@ -86,23 +86,14 @@ resource "aws_lb_target_group" "target-group" {
     path                = var.hc_path  # 헬스 체크 경로 (예: "/health")
     healthy_threshold   = var.hc_healthy_threshold  # 정상 상태로 간주할 요청 수
     unhealthy_threshold = var.hc_unhealthy_threshold  # 비정상 상태로 간주할 요청 수
+    interval            = 30                              # 체크 간격 (초)
+    timeout             = 5                               # 응답 타임아웃 (초)
+     matcher             = "200"                           # 기대 응답 코드
   }
 
   tags = merge(tomap({
          Name = "aws-alb-tg-${var.stage}-${var.servicename}"}), var.tags)
 }
-
-# Target Group & alb 연결: asg 사용 -> 자동으로 연결됨
-# resource "aws_lb_target_group_attachment" "target-group-attachment" {
-#   count             = length(var.instance_ids)  # 인스턴스 개수만큼 생성
-#   target_group_arn  = aws_lb_target_group.target-group.arn  # 타겟 그룹 ARN
-#   target_id         = var.instance_ids[count.index]  # 연결할 EC2 인스턴스 ID
-#   port             = var.port  # 연결할 포트
-
-#   availability_zone = var.availability_zone  # 배포할 가용 영역 설정
-
-#   depends_on = [aws_lb_target_group.target-group]  # 타겟 그룹이 먼저 생성된 후 실행
-# }
 
 # ALB 보안 그룹 설정
 resource "aws_security_group" "sg-alb" {

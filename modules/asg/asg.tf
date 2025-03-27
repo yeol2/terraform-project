@@ -60,6 +60,7 @@ resource "aws_autoscaling_policy" "target_tracking" {
     target_value       = 70.0  # 평균 CPU가 70% 넘으면 인스턴스 자동 증가
     disable_scale_in   = false
   }
+  depends_on = [aws_autoscaling_group.asg]
 }
 
 # EC2용 Security Group (ALB에서만 허용)
