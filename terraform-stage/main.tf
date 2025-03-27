@@ -34,11 +34,13 @@ module "openvpn" {
   source = "../modules/openvpn"
 
   openvpn_instance_type = "t3.micro"
-  key_name              = "rowan-key"
+  key_name              = var.key_name
   subnet_id             = module.vpc.public_subnet_id
   vpc_id                = module.vpc.vpc_id
   name                  = "openvpn-${var.stage}-${var.servicename}"
+  tags                  = var.tags
 }
+
 
 # rds
 module "rds" {

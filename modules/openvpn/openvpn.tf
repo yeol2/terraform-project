@@ -53,5 +53,22 @@ resource "aws_security_group" "openvpn_sg" {
   }
 }
 
+# 1. 탄력적 IP 생성
+resource "aws_eip" "openvpn_eip" {
+  domain = "vpc"
+  tags = merge(
+    {
+      Name = "${var.name}-eip"
+    },
+    var.tags
+  )
+}
+
+# 2. 인스턴스에 탄력적 IP 할당
+resource "aws_eip_association" "openvpn_eip_assoc" {
+  instance_id   = aws_instance.openvpn.id
+  allocation_id = aws_eip.openvpn_eip.id
+}
+
 
 

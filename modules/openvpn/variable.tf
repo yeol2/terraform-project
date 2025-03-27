@@ -28,3 +28,8 @@ output "sg_id" {
   value = aws_security_group.openvpn_sg.id
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "공통 태그"
+  default     = {}
+}
