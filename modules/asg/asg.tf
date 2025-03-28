@@ -5,9 +5,17 @@ resource "aws_launch_template" "lt" {
   instance_type = var.instance_type
   key_name      = var.key_name
 
-  vpc_security_group_ids = [aws_security_group.asg_ec2_sg.id]
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    yum update -y
+    amazon-linux-extras install nginx1 -y
+    systemctl enable nginx
+    systemctl start nginx
+    echo "<h1>Welcome to Rowan's Nginx page!</h1>" > /usr/share/nginx/html/index.html
+  EOF
+  )
 
-  user_data = base64encode(var.user_data)
+  vpc_security_group_ids = [aws_security_group.asg_ec2_sg.id]
 
   tag_specifications {
     resource_type = "instance"

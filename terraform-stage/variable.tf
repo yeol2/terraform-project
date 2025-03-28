@@ -1,3 +1,4 @@
+# ---------------------------- Default Set ------------------------------------#
 variable "region" {
   type    = string
   default = "ap-northeast-2"
@@ -61,7 +62,7 @@ variable "subnet_db_az2" {
 # Instance Configuration
 variable "ami" {
   type    = string
-  default = "ami-062cddb9d94dcf95d"
+  default = "ami-070e986143a3041b6"
 }
 
 variable "instance_type" {
@@ -90,6 +91,7 @@ variable "key_name" {
   default     = "keypair-full-master"
 }
 
+# ---------------------------- Default Set ------------------------------------#
 # RDS (DB) Configuration
 variable "rds_dbname" {
   type    = string
@@ -100,18 +102,6 @@ variable "rds_instance_count" {
   type    = string
   default = "1"
 }
-
-# # KMS Configuration
-# variable "rds_kms_arn" {
-#   type    = string
-#   default = "arn:aws:kms:ap-northeast-2:471112992234:key/1dbf43f7-1847-434c-bc3c-1beb1b86e480"  # 기본 KMS ARN
-# }
-
-# variable "ebs_kms_key_id" {
-#   type    = string
-#   default = "arn:aws:kms:ap-northeast-2:471112992234:key/43b0228d-0a06-465c-b25c-7480b07b5276"  # EBS용 기본 KMS ARN
-# }
-
 
 # ALB가 내부용인지 외부용인지 (false: 인터넷 공개)
 variable "internal" {

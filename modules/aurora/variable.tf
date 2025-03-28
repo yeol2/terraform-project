@@ -147,7 +147,7 @@ variable "rds_instance_count" {
 # Aurora 인스턴스 타입 (예: db.r6g.large)
 variable "rds_instance_class" {
   type    = string
-  default = "db.r5.large"
+  default = "db.t3.micro"
 }
 
 # RDS 인스턴스 마이너 버전 자동 업데이트 여부

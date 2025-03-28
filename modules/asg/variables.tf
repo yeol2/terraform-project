@@ -23,11 +23,6 @@ variable "key_name" {
   type        = string
 }
 
-variable "user_data" {
-  description = "User data script to initialize instances"
-  type        = string
-}
-
 variable "subnet_ids" {
   description = "Subnets for launching EC2 instances"
   type        = list(string)
@@ -60,26 +55,6 @@ variable "alb_security_group_id" {
 
 variable "vpc_id" {
   description = "VPC ID where the ASG and security group will be created"
-  type        = string
-}
-
-variable "rds_endpoint" {
-  description = "Aurora RDS endpoint (writer)"
-  type        = string
-}
-
-variable "rds_username" {
-  description = "DB username for WordPress"
-  type        = string
-}
-
-variable "rds_password" {
-  description = "DB password for WordPress"
-  type        = string
-}
-
-variable "rds_dbname" {
-  description = "DB name for WordPress"
   type        = string
 }
 

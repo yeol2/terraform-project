@@ -49,11 +49,10 @@ module "rds" {
   
   tags = var.tags
   rds_dbname = var.rds_dbname
-#  sg_allow_ingress_list_aurora    = var.sg_allow_ingress_list_aurora
-#  sg_allow_ingress_sg_list_aurora = concat([module.vpc.sg-ec2-comm.id, module.eks.eks_node_sg_id], var.sg_allow_list_aurora_sg_add)
+
   sg_allow_ingress_sg_list_aurora = [module.asg.asg_ec2_sg_id]
   network_vpc_id                  = module.vpc.vpc_id
-  subnet_ids = [module.vpc.db-az1.id, module.vpc.db-az2.id]
+  subnet_ids = [module.vpc.db-az1.id] #  module.vpc.db-az2.id c존 빼서 a존에만 생성되도록
   az           = var.az
 
   rds_instance_count = var.rds_instance_count
@@ -76,16 +75,9 @@ module "asg" {
   target_group_arns  = [module.alb.alb_target_group_arn]
   openvpn_sg_id = module.openvpn.sg_id
 
-  desired_capacity = 1
-  max_size         = 2
-  min_size         = 1
-
-  user_data     = local.user_data
-  # wordpress를 위한 rds 설정
-  rds_username = var.rds_username
-  rds_password = module.rds.rds-random-password
-  rds_dbname   = var.rds_dbname
-  rds_endpoint = module.rds.endpoint
+  desired_capacity = 2
+  max_size         = 4
+  min_size         = 2
 }
 
 #alb
@@ -111,16 +103,8 @@ module "alb" {
 
   # HTTPS 및 Route53 생략
   aws_s3_lb_logs_name = ""
-  certificate_arn     = ""
+  certificate_arn     = "arn:aws:acm:ap-northeast-2:908027376495:certificate/6d1445a2-f28a-4d47-b2f6-5a700358cd94"
   domain              = ""
   hostzone_id         = ""
 }
 
-locals {
-  user_data = templatefile("../templates/user_data.sh.tpl", {
-    rds_dbname   = var.rds_dbname
-    rds_username = var.rds_username
-    rds_password = module.rds.rds-random-password
-    rds_endpoint = module.rds.endpoint
-  })
-}
